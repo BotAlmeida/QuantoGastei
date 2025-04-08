@@ -2,7 +2,7 @@ param location string = resourceGroup().location
 param appServicePlanName string = 'asp-despesas'
 param webAppName string = 'webapp-despesas'
 param storageAccountName string = 'despesasstorage'
-param cosmosDbAccountName string = 'despesa-cosmos'
+param cosmosDbAccountName string = 'despesascosmos'
 param functionAppName string = 'func-despesas'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
@@ -15,23 +15,28 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   properties: {}
 }
 
-resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: storageAccount
-  name: 'faturas'
-  properties: {
-    publicAccess: 'None'
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+    parent: storageAccount
+    name: 'default'
   }
-}
+  
+resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+    parent: blobService
+    name: 'faturas'
+    properties: {
+      publicAccess: 'None'
+    }
+  }
 
 resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
   name: cosmosDbAccountName
-  location: location
+  location: 'North Europe'
   kind: 'GlobalDocumentDB'
   properties: {
     databaseAccountOfferType: 'Standard'
     locations: [
       {
-        locationName: location
+        locationName: 'North Europe'
         failoverPriority: 0
       }
     ]
@@ -84,16 +89,16 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|<imagem-docker>'
+      linuxFxVersion: 'DOCKER|botalmeida/backend-despesas:latest'
       appSettings: [
         {
           name: 'WEBSITES_PORT'
           value: '80'
-        },
+        }
         {
           name: 'BLOB_CONN_STRING'
           value: storageAccount.properties.primaryEndpoints.blob
-        },
+        }
         {
           name: 'COSMOS_URL'
           value: cosmosDb.properties.documentEndpoint
