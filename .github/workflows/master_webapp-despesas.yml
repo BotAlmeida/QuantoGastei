@@ -23,14 +23,14 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://index.docker.io/v1/
-        username: ${{ secrets.AzureAppService_ContainerUsername_b281302a2d7242128389d2b714c41ff8 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_e26e07c15bc14ef98ce979dd714d05a0 }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_0238a56ebbdb4785a4644bf11e87a0d6 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_930d3bfca3704dcb99e668208f2e8982 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_b281302a2d7242128389d2b714c41ff8 }}/docker.io/botalmeida/backend-despesas:${{ github.sha }}
+        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_0238a56ebbdb4785a4644bf11e87a0d6 }}/botalmeida/backend-despesas:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -47,5 +47,5 @@ jobs:
       with:
         app-name: 'webapp-despesas'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_460c097ab74b42179b5f44e47632aca9 }}
-        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_b281302a2d7242128389d2b714c41ff8 }}/docker.io/botalmeida/backend-despesas:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_c1be2072c0234b7fa7ad9d8650444eab }}
+        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_0238a56ebbdb4785a4644bf11e87a0d6 }}/botalmeida/backend-despesas:${{ github.sha }}'
