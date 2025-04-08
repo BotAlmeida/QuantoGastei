@@ -30,7 +30,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_75b91aaa288749e9a7a3a7eeb976fba7 }}/botalmeida/backend-despesas:${{ github.sha }}
+        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_75b91aaa288749e9a7a3a7eeb976fba7 }}/backend-despesas:${{ github.sha }}
         file: ./backend/Dockerfile
 
   deploy:
@@ -48,4 +48,4 @@ jobs:
         app-name: 'webappdespesas'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_96b0bbad29bd497483c228a760b3498e }}
-        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_75b91aaa288749e9a7a3a7eeb976fba7 }}/botalmeida/backend-despesas:${{ github.sha }}'
+        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_75b91aaa288749e9a7a3a7eeb976fba7 }}/backend-despesas:${{ github.sha }}'
