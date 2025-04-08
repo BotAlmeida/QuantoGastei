@@ -1,5 +1,0 @@
-#Dependencias do projeto
-flask
-pymongo
-python-dotenv
-azure-storage-blob
