@@ -15,6 +15,9 @@ jobs:
       with:
         submodules: true
 
+    - name: Verify login
+      run: docker info
+
     - name: Login to DockerHub
       uses: docker/login-action@v2
       with:
