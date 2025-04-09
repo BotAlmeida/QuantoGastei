@@ -12,60 +12,22 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
-  properties: {}
-}
-
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
-  parent: storageAccount
-  name: 'default'
-}
-
-resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'faturas'
-  properties: {
-    publicAccess: 'None'
-  }
 }
 
 resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
   name: cosmosDbAccountName
-  location: 'North Europe'
+  location: location
   kind: 'GlobalDocumentDB'
   properties: {
     databaseAccountOfferType: 'Standard'
     locations: [
       {
-        locationName: 'North Europe'
+        locationName: location
         failoverPriority: 0
       }
     ]
     consistencyPolicy: {
       defaultConsistencyLevel: 'Session'
-    }
-  }
-}
-
-resource cosmosDbDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-03-15' = {
-  parent: cosmosDb
-  name: 'DespesasDB'
-  properties: {
-    resource: {
-      id: 'DespesasDB'
-    }
-  }
-}
-
-resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-03-15' = {
-  parent: cosmosDbDb
-  name: 'Registos'
-  properties: {
-    resource: {
-      id: 'Registos'
-      partitionKey: {
-        paths: ['/id']
-        kind: 'Hash'
-      }
     }
   }
 }
@@ -111,10 +73,11 @@ resource backendWebApp 'Microsoft.Web/sites@2022-09-01' = {
 resource frontendWebApp 'Microsoft.Web/sites@2022-09-01' = {
   name: frontendWebAppName
   location: location
-  kind: 'app,linux'
+  kind: 'app,linux,container'
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
+      linuxFxVersion: 'DOCKER|botalmeida/frontend-despesas:latest'
       appSettings: [
         {
           name: 'WEBSITES_PORT'
