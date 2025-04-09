@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "17419524014832633358"
+      "templateHash": "8023655075817974970"
     }
   },
   "parameters": {
@@ -17,9 +17,13 @@
       "type": "string",
       "defaultValue": "asp-despesas"
     },
-    "webAppName": {
+    "backendWebAppName": {
       "type": "string",
-      "defaultValue": "webapp-despesas"
+      "defaultValue": "backend-webapp-despesas"
+    },
+    "frontendWebAppName": {
+      "type": "string",
+      "defaultValue": "frontend-webapp-despesas"
     },
     "storageAccountName": {
       "type": "string",
@@ -28,10 +32,6 @@
     "cosmosDbAccountName": {
       "type": "string",
       "defaultValue": "despesascosmos"
-    },
-    "functionAppName": {
-      "type": "string",
-      "defaultValue": "func-despesas"
     }
   },
   "resources": [
@@ -132,7 +132,7 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-09-01",
-      "name": "[parameters('webAppName')]",
+      "name": "[parameters('backendWebAppName')]",
       "location": "[parameters('location')]",
       "kind": "app,linux,container",
       "properties": {
@@ -164,23 +164,22 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2022-09-01",
-      "name": "[parameters('functionAppName')]",
+      "name": "[parameters('frontendWebAppName')]",
       "location": "[parameters('location')]",
-      "kind": "functionapp",
+      "kind": "app,linux",
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
         "siteConfig": {
           "appSettings": [
             {
-              "name": "AzureWebJobsStorage",
-              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2022-09-01').primaryEndpoints.blob]"
+              "name": "WEBSITES_PORT",
+              "value": "80"
             }
           ]
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
       ]
     }
   ]

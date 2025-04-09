@@ -1,9 +1,9 @@
 param location string = resourceGroup().location
 param appServicePlanName string = 'asp-despesas'
-param webAppName string = 'webapp-despesas'
+param backendWebAppName string = 'backend-webapp-despesas'
+param frontendWebAppName string = 'frontend-webapp-despesas'
 param storageAccountName string = 'despesasstorage'
 param cosmosDbAccountName string = 'despesascosmos'
-param functionAppName string = 'func-despesas'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
@@ -16,17 +16,17 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }
 
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
-    parent: storageAccount
-    name: 'default'
-  }
-  
+  parent: storageAccount
+  name: 'default'
+}
+
 resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-    parent: blobService
-    name: 'faturas'
-    properties: {
-      publicAccess: 'None'
-    }
+  parent: blobService
+  name: 'faturas'
+  properties: {
+    publicAccess: 'None'
   }
+}
 
 resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
   name: cosmosDbAccountName
@@ -82,8 +82,8 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   }
 }
 
-resource webApp 'Microsoft.Web/sites@2022-09-01' = {
-  name: webAppName
+resource backendWebApp 'Microsoft.Web/sites@2022-09-01' = {
+  name: backendWebAppName
   location: location
   kind: 'app,linux,container'
   properties: {
@@ -108,17 +108,17 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
   }
 }
 
-resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
-  name: functionAppName
+resource frontendWebApp 'Microsoft.Web/sites@2022-09-01' = {
+  name: frontendWebAppName
   location: location
-  kind: 'functionapp'
+  kind: 'app,linux'
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
       appSettings: [
         {
-          name: 'AzureWebJobsStorage'
-          value: storageAccount.properties.primaryEndpoints.blob
+          name: 'WEBSITES_PORT'
+          value: '80'
         }
       ]
     }

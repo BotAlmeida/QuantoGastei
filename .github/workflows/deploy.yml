@@ -24,16 +24,30 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and push Docker image
+    - name: Build and push backend Docker image
       uses: docker/build-push-action@v4
       with:
-        context: ./
+        context: ./backend
         file: ./backend/Dockerfile
         push: true
         tags: botalmeida/backend-despesas:latest
 
-    - name: Deploy container para Azure
+    - name: Build and push frontend Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile
+        push: true
+        tags: botalmeida/frontend-despesas:latest
+
+    - name: Deploy backend container para Azure
       uses: azure/webapps-deploy@v2
       with:
-        app-name: "quanto-gastei"
+        app-name: "backend-webapp-despesas"
         images: docker.io/botalmeida/backend-despesas:latest
+
+    - name: Deploy frontend container para Azure
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: "frontend-webapp-despesas"
+        images: docker.io/botalmeida/frontend-despesas:latest
