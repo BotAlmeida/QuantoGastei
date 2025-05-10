@@ -55,7 +55,6 @@ resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@20
       id: cosmosDbDbName
     }
   }
-  dependsOn: [cosmosDb]
 }
 
 resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-03-15' = {
@@ -70,7 +69,6 @@ resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
       }
     }
   }
-  dependsOn: [cosmosDbDatabase]
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
@@ -109,7 +107,6 @@ resource backendWebApp 'Microsoft.Web/sites@2022-09-01' = {
       ]
     }
   }
-  dependsOn: [containerRegistry, storageAccount, cosmosDb]
 }
 
 resource frontendFunction 'Microsoft.Web/sites@2022-09-01' = {
@@ -139,7 +136,6 @@ resource frontendFunction 'Microsoft.Web/sites@2022-09-01' = {
       ]
     }
   }
-  dependsOn: [containerRegistry, storageAccount, cosmosDb]
 }
 
 output registryLoginServer string = containerRegistry.properties.loginServer
