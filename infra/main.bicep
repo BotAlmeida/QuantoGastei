@@ -1,8 +1,8 @@
-param location string = resourceGroup().location
+param location string = 'northeurope'
 param appServicePlanName string = 'asp-despesas'
 param backendWebAppName string = 'backend-webapp-despesas'
-param containerRegistryName string = 'acrdespesas'
 param functionAppName string = 'frontend-function-despesas'
+param containerRegistryName string = 'acrdespesas'
 param storageAccountName string = 'despesasstorage'
 param cosmosDbAccountName string = 'despesascosmos'
 param cosmosDbDbName string = 'despesasdb'
@@ -89,7 +89,7 @@ resource backendWebApp 'Microsoft.Web/sites@2022-09-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|botalmeida/backend-despesas:latest'
+      linuxFxVersion: 'DOCKER|acrdespesas.azurecr.io/backend-despesas:latest'
       appSettings: [
         {
           name: 'WEBSITES_PORT'
@@ -119,7 +119,7 @@ resource frontendFunction 'Microsoft.Web/sites@2022-09-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|botalmeida/frontend-despesas:latest'
+      linuxFxVersion: 'DOCKER|acrdespesas.azurecr.io/frontend-despesas:latest'
       appSettings: [
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
@@ -129,10 +129,14 @@ resource frontendFunction 'Microsoft.Web/sites@2022-09-01' = {
           name: 'AzureWebJobsStorage'
           value: storageAccount.listKeys().keys[0].value
         }
+        {
+          name: 'COSMOS_CONN_STRING'
+          value: cosmosDb.listConnectionStrings().connectionStrings[0].connectionString
+        }
       ]
     }
   }
-  dependsOn: [storageAccount, containerRegistry]
+  dependsOn: [containerRegistry, storageAccount, cosmosDb]
 }
 
 output registryLoginServer string = containerRegistry.properties.loginServer

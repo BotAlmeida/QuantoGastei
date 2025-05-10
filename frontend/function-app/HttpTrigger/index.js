@@ -1,10 +1,25 @@
-module.exports = async function (context, req) {
-    context.log('HTTP trigger function processed a request.');
+const { CosmosClient } = require('@azure/cosmos');
+const connStr = process.env.COSMOS_CONN_STRING;
+const cosmosClient = new CosmosClient(connStr);
+const container = cosmosClient.database('despesasdb').container('items');
 
-    const name = req.query.name || (req.body && req.body.name);
+module.exports = async function (context, req) {
+    const despesas = await container.items.readAll().fetchAll();
+    const totaisPorCategoria = {};
+
+    for (const item of despesas.resources) {
+        const categoria = item.tipo || 'Indefinido';
+        const valor = parseFloat(item.valor) || 0;
+
+        if (!totaisPorCategoria[categoria]) {
+            totaisPorCategoria[categoria] = 0;
+        }
+
+        totaisPorCategoria[categoria] += valor;
+    }
 
     context.res = {
         status: 200,
-        body: name ? `Olá ${name}, isto está a bombar!` : "Manda-me um nome pá!"
+        body: totaisPorCategoria
     };
 };
