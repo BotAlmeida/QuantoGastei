@@ -139,5 +139,3 @@ resource frontendFunction 'Microsoft.Web/sites@2022-09-01' = {
 }
 
 output registryLoginServer string = containerRegistry.properties.loginServer
-output storageConnectionString string = storageAccount.listKeys().keys[0].value
-output cosmosConnectionString string = cosmosDb.listConnectionStrings().connectionStrings[0].connectionString
