@@ -36,7 +36,7 @@ jobs:
       with:
         resourceGroupName: rg-despesas
         template: infra/main.bicep
-        parameters: location=westeurope
+        parameters: location=northeurope
 
     - name: Reiniciar backend App Service
       run: |

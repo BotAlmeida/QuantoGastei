@@ -38,7 +38,7 @@ projeto-despesas/
 
 ### 1. Criar o grupo de recursos
 
-az group create --name rg-despesas --location westeurope
+az group create --name rg-despesas --location northeurope
 
 ## Deploy da infraestrutura
 
