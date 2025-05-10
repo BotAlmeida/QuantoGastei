@@ -8,6 +8,7 @@ param cosmosDbAccountName string = 'despesascosmos'
 param cosmosDbDbName string = 'despesasdb'
 param cosmosDbContainerName string = 'items'
 
+
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
   name: containerRegistryName
   location: location
