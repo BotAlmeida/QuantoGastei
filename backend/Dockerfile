@@ -1,10 +1,14 @@
-FROM python:3.10
+FROM node:18
 
 WORKDIR /app
 
-COPY backend/requirements.txt .
-RUN pip install -r requirements.txt
+COPY package*.json ./
+RUN npm install
 
 COPY . .
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
+ENV PORT=80
+
+EXPOSE 80
+
+CMD [ "node", "index.js" ]
