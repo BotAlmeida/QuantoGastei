@@ -1,16 +1,13 @@
 {
-    "name": "backend-despesas",
-    "version": "1.0.0",
-    "description": "Backend da aplicação de despesas",
-    "main": "index.js",
-    "scripts": {
-      "start": "node index.js"
-    },
-    "dependencies": {
-      "@azure/cosmos": "^4.0.0",
-      "@azure/storage-blob": "^12.13.0",
-      "dotenv": "^16.0.3",
-      "express": "^4.18.2"
-    }
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "@azure/cosmos": "^4.0.0",
+    "dotenv": "^16.0.3"
   }
-  
+}

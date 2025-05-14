@@ -1,15 +1,14 @@
 param location string = 'northeurope'
-param appServicePlanName string = 'asp-despesas'
-param backendWebAppName string = 'backend-webapp-despesas'
-param functionAppName string = 'frontend-function-despesas'
+param appServicePlanName string = 'asp-quanto'
+param webAppName string = 'quanto-frontend'
+param functionAppName string = 'quanto-func'
 param containerRegistryName string = 'acrdespesas'
 param storageAccountName string = 'despesasstorage'
-param cosmosDbAccountName string = 'despesascosmos'
+param cosmosDbName string = 'despesascosmos'
 param cosmosDbDbName string = 'despesasdb'
-param cosmosDbContainerName string = 'items'
+param cosmosDbContainerName string = 'faturas'
 
-
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
+resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
   name: containerRegistryName
   location: location
   sku: {
@@ -20,7 +19,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-pr
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -30,7 +29,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }
 
 resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
-  name: cosmosDbAccountName
+  name: cosmosDbName
   location: location
   kind: 'GlobalDocumentDB'
   properties: {
@@ -48,8 +47,8 @@ resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
 }
 
 resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-03-15' = {
-  parent: cosmosDb
   name: cosmosDbDbName
+  parent: cosmosDb
   properties: {
     resource: {
       id: cosmosDbDbName
@@ -58,8 +57,8 @@ resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@20
 }
 
 resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-03-15' = {
-  parent: cosmosDbDatabase
   name: cosmosDbContainerName
+  parent: cosmosDbDatabase
   properties: {
     resource: {
       id: cosmosDbContainerName
@@ -83,23 +82,20 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   }
 }
 
-resource backendWebApp 'Microsoft.Web/sites@2022-09-01' = {
-  name: backendWebAppName
+resource webApp 'Microsoft.Web/sites@2022-09-01' = {
+  name: webAppName
   location: location
   kind: 'app,linux,container'
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|acrdespesas.azurecr.io/backend-despesas:latest'
+      linuxFxVersion: 'DOCKER|acrdespesas.azurecr.io/backend:latest'
       appSettings: [
         {
           name: 'WEBSITES_PORT'
-          value: '80'
+          value: '3000'
         }
-        {
-          name: 'BLOB_CONN_STRING'
-          value: storageAccount.listKeys().keys[0].value
-        }
+        
         {
           name: 'COSMOS_CONN_STRING'
           value: cosmosDb.listConnectionStrings().connectionStrings[0].connectionString
@@ -109,7 +105,7 @@ resource backendWebApp 'Microsoft.Web/sites@2022-09-01' = {
   }
 }
 
-resource frontendFunction 'Microsoft.Web/sites@2022-09-01' = {
+resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
   name: functionAppName
   location: location
   kind: 'functionapp,linux'
@@ -119,16 +115,18 @@ resource frontendFunction 'Microsoft.Web/sites@2022-09-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|acrdespesas.azurecr.io/frontend-despesas:latest'
+      linuxFxVersion: 'DOCKER|acrdespesas.azurecr.io/function:latest'
       appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: storage.listKeys().keys[0].value
+        }
+
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
           value: 'node'
         }
-        {
-          name: 'AzureWebJobsStorage'
-          value: storageAccount.listKeys().keys[0].value
-        }
+
         {
           name: 'COSMOS_CONN_STRING'
           value: cosmosDb.listConnectionStrings().connectionStrings[0].connectionString
@@ -137,5 +135,3 @@ resource frontendFunction 'Microsoft.Web/sites@2022-09-01' = {
     }
   }
 }
-
-output registryLoginServer string = containerRegistry.properties.loginServer
