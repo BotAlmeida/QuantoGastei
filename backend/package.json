@@ -1,13 +1,15 @@
 {
-  "name": "backend",
+  "name": "quanto-gastei-backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
     "@azure/cosmos": "^4.0.0",
-    "dotenv": "^16.0.3"
+    "@azure/storage-blob": "^12.12.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "multer": "^1.4.4"
   }
 }

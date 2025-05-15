@@ -61,7 +61,7 @@
 <body>
   <div class="container">
     <h1>Quanto Gastei</h1>
-    <form id="faturaForm">
+    <form id="faturaForm" enctype="multipart/form-data">
       <label for="data">Data</label>
       <input type="date" id="data" name="data" required />
 
@@ -88,6 +88,9 @@
         <option value="false">Não</option>
       </select>
 
+      <label for="imagem">Imagem (fatura)</label>
+      <input type="file" id="imagem" name="imagem" accept="image/*" required />
+
       <button type="submit">Guardar Despesa</button>
     </form>
     <div class="message" id="msg"></div>
@@ -101,22 +104,15 @@
       e.preventDefault();
       msg.textContent = '';
 
-      const data = {
-        data: form.data.value,
-        valor: parseFloat(form.valor.value),
-        categoria: form.categoria.value,
-        local: form.local.value,
-        contribuinte: form.contribuinte.value === 'true'
-      };
+      const formData = new FormData(form);
 
       try {
-        const res = await fetch('https://backend-webapp-despesas.azurewebsites.net/fatura', {
+        const res = await fetch('https://<O_TEU_WEBAPP_BACKEND>.azurewebsites.net/fatura', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: formData
         });
         if (res.ok) {
-          msg.textContent = 'Despesa guardada com sucesso! 👍';
+          msg.textContent = 'Despesa guardada com sucesso com imagem! 📸';
           form.reset();
         } else {
           msg.textContent = 'Erro ao guardar despesa.';
