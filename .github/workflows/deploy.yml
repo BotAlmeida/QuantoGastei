@@ -3,7 +3,7 @@ name: Deploy QuantoGastei Azure
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
