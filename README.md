@@ -26,12 +26,12 @@ projeto-despesas/
 │ ├── index.js
 │ └── .env.example
 ├── frontend/
-│ └── function-app/
-│ ├── Dockerfile
-│ ├── host.json
-│ ├── .env.example
-│ └── HttpTrigger/
-│ ├── function.json
+│ └── assets/
+│ └── index.html
+├── function/
+│ └── Dockerfile
+│ └── function.json
+│ └── host.json
 │ └── index.js
 
 ## 🚀 Deploy em Azure (passo a passo)
@@ -51,12 +51,4 @@ az deployment group create \
 
 az acr login --name acrdespesas
 
-
-## Build & Push das imagens Docker (se quiser manualmente)
-
-docker build -t acrdespesas.azurecr.io/backend-despesas:latest ./backend
-docker push acrdespesas.azurecr.io/backend-despesas:latest
-
-docker build -t acrdespesas.azurecr.io/frontend-despesas:latest ./frontend/function-app
-docker push acrdespesas.azurecr.io/frontend-despesas:latest
 

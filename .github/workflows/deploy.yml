@@ -1,34 +1,36 @@
-name: Deploy Azure Infra
+name: Deploy QuantoGastei Azure
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v3
 
-    - name: Login Azure
+    - name: Login Azure CLI
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Docker login
-      run: echo ${{ secrets.ACR_PASSWORD }} | docker login acrdespesas.azurecr.io -u ${{ secrets.ACR_USERNAME }} --password-stdin
+    - name: Login no ACR
+      run: echo ${{ secrets.ACR_PASSWORD }} | docker login ${{ secrets.ACR_NAME }}.azurecr.io -u ${{ secrets.ACR_NAME }} --password-stdin
 
-    - name: Build + Push Backend
+    - name: Build e push backend
       run: |
-        docker build -t acrdespesas.azurecr.io/backend:latest ./backend
-        docker push acrdespesas.azurecr.io/backend:latest
+        docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/backend:latest ./backend
+        docker push ${{ secrets.ACR_NAME }}.azurecr.io/backend:latest
 
-    - name: Build + Push Function
+    - name: Build e push function
       run: |
-        docker build -t acrdespesas.azurecr.io/function:latest ./function
-        docker push acrdespesas.azurecr.io/function:latest
+        docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/function:latest ./function
+        docker push ${{ secrets.ACR_NAME }}.azurecr.io/function:latest
 
-    - name: Deploy Infra
+    - name: Deploy infraestrutura Bicep
       uses: azure/arm-deploy@v1
       with:
         resourceGroupName: rg-despesas
@@ -36,7 +38,16 @@ jobs:
         parameters: location=northeurope
         failOnStdErr: false
 
-    - name: Restart Apps
+    - name: Criar zip do frontend
+      run: |
+        cd frontend
+        zip -r ../frontend.zip .
+
+    - name: Deploy frontend zip
+      run: |
+        az webapp deploy --resource-group rg-despesas --name quanto-frontend --src-path ./frontend.zip --type zip
+
+    - name: Reiniciar Web App e Function
       run: |
         az webapp restart --name quanto-frontend --resource-group rg-despesas
         az functionapp restart --name quanto-func --resource-group rg-despesas

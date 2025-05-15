@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quanto Gastei</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 10px;
+      background: #f8f9fa;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #0078d4;
+    }
+    .container {
+      background: white;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background: #0078d4;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005a9e;
+    }
+    .message {
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quanto Gastei</h1>
+    <form id="faturaForm">
+      <label for="data">Data</label>
+      <input type="date" id="data" name="data" required />
+
+      <label for="valor">Valor (€)</label>
+      <input type="number" step="0.01" id="valor" name="valor" required />
+
+      <label for="categoria">Categoria</label>
+      <select id="categoria" name="categoria" required>
+        <option value="">Seleciona...</option>
+        <option value="Alimentação">Alimentação</option>
+        <option value="Transportes">Transportes</option>
+        <option value="Lazer">Lazer</option>
+        <option value="Casa">Casa</option>
+        <option value="Outros">Outros</option>
+      </select>
+
+      <label for="local">Local</label>
+      <input type="text" id="local" name="local" placeholder="Ex: Porto" required />
+
+      <label for="contribuinte">Contribuinte</label>
+      <select id="contribuinte" name="contribuinte" required>
+        <option value="">Seleciona...</option>
+        <option value="true">Sim</option>
+        <option value="false">Não</option>
+      </select>
+
+      <button type="submit">Guardar Despesa</button>
+    </form>
+    <div class="message" id="msg"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('faturaForm');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = '';
+
+      const data = {
+        data: form.data.value,
+        valor: parseFloat(form.valor.value),
+        categoria: form.categoria.value,
+        local: form.local.value,
+        contribuinte: form.contribuinte.value === 'true'
+      };
+
+      try {
+        const res = await fetch('https://backend-webapp-despesas.azurewebsites.net/fatura', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          msg.textContent = 'Despesa guardada com sucesso! 👍';
+          form.reset();
+        } else {
+          msg.textContent = 'Erro ao guardar despesa.';
+        }
+      } catch (err) {
+        msg.textContent = 'Erro na comunicação com o servidor.';
+      }
+    });
+  </script>
+</body>
+</html>

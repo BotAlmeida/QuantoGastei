@@ -85,23 +85,18 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
 resource webApp 'Microsoft.Web/sites@2022-09-01' = {
   name: webAppName
   location: location
-  kind: 'app,linux,container'
+  kind: 'app,linux'
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|acrdespesas.azurecr.io/backend:latest'
       appSettings: [
         {
-          name: 'WEBSITES_PORT'
-          value: '3000'
-        }
-        
-        {
-          name: 'COSMOS_CONN_STRING'
-          value: cosmosDb.listConnectionStrings().connectionStrings[0].connectionString
+          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
+          value: 'true'
         }
       ]
     }
+    httpsOnly: true
   }
 }
 
@@ -115,18 +110,16 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|acrdespesas.azurecr.io/function:latest'
+      linuxFxVersion: 'DOCKER|${acr.name}.azurecr.io/function:latest'
       appSettings: [
         {
           name: 'AzureWebJobsStorage'
           value: storage.listKeys().keys[0].value
         }
-
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
           value: 'node'
         }
-
         {
           name: 'COSMOS_CONN_STRING'
           value: cosmosDb.listConnectionStrings().connectionStrings[0].connectionString
