@@ -1,6 +1,7 @@
 param location string = 'northeurope'
 param appServicePlanName string = 'asp-quanto'
 param webAppName string = 'quanto-frontend'
+param backendAppName string = 'quanto-backend'
 param functionAppName string = 'quanto-func'
 param containerRegistryName string = 'acrdespesas'
 param storageAccountName string = 'despesasstorage'
@@ -88,16 +89,73 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
   kind: 'app,linux'
   properties: {
     serverFarmId: appServicePlan.id
+    httpsOnly: true
     siteConfig: {
+      linuxFxVersion: 'DOCKER|${acr.name}.azurecr.io/frontend:latest'
       appSettings: [
         {
           name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
-          value: 'true'
+          value: 'false'
+        }
+        {
+          name: 'DOCKER_REGISTRY_SERVER_URL'
+          value: 'https://${acr.name}.azurecr.io'
+        }
+        {
+          name: 'DOCKER_REGISTRY_SERVER_USERNAME'
+          value: acr.listCredentials().username
+        }
+        {
+          name: 'DOCKER_REGISTRY_SERVER_PASSWORD'
+          value: acr.listCredentials().passwords[0].value
+        }
+        {
+          name: 'PORT'
+          value: '80'
+        }
+        {
+          name: 'BACKEND_URL'
+          value: 'https://quanto-backend.azurewebsites.net'
+        }
+      ]
+    }
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+}
+
+resource backendApp 'Microsoft.Web/sites@2022-09-01' = {
+  name: backendAppName
+  location: location
+  kind: 'app,linux'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    serverFarmId: appServicePlan.id
+    siteConfig: {
+      linuxFxVersion: 'DOCKER|${acr.name}.azurecr.io/backend:latest'
+      appSettings: [
+        {
+          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
+          value: 'false'
+        }
+        {
+          name: 'BLOB_CONN_STRING'
+          value: storage.listKeys().keys[0].value
+        }
+        {
+          name: 'COSMOS_CONN_STRING'
+          value: cosmosDb.listConnectionStrings().connectionStrings[0].connectionString
         }
       ]
     }
     httpsOnly: true
   }
+  dependsOn: [
+    acr
+  ]
 }
 
 resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
@@ -127,4 +185,7 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
       ]
     }
   }
+  dependsOn: [
+    acr
+  ]
 }
