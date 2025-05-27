@@ -50,4 +50,5 @@ app.get('/faturas', async (req, res) => {
   res.send(resources);
 });
 
-app.listen(3000, () => console.log('Backend a bombar na porta 3000 🚀'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Backend a bombar na porta ${PORT} 🚀`));
