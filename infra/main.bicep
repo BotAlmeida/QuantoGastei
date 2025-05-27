@@ -130,6 +130,10 @@ resource backendApp 'Microsoft.Web/sites@2022-09-01' = {
           name: 'COSMOS_CONN_STRING'
           value: cosmosDb.listConnectionStrings().connectionStrings[0].connectionString
         }
+        {
+          name: 'PORT'
+          value: '80'
+        }
       ]
     }
     httpsOnly: true
