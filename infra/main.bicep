@@ -91,31 +91,15 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     serverFarmId: appServicePlan.id
     httpsOnly: true
     siteConfig: {
-      linuxFxVersion: 'DOCKER|${acr.name}.azurecr.io/frontend:latest'
+      linuxFxVersion: 'NODE|18-lts' // ou usa PHP|x.x ou até null
       appSettings: [
         {
           name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
-          value: 'false'
-        }
-        {
-          name: 'DOCKER_REGISTRY_SERVER_URL'
-          value: 'https://${acr.name}.azurecr.io'
-        }
-        {
-          name: 'DOCKER_REGISTRY_SERVER_USERNAME'
-          value: acr.listCredentials().username
-        }
-        {
-          name: 'DOCKER_REGISTRY_SERVER_PASSWORD'
-          value: acr.listCredentials().passwords[0].value
+          value: 'true'
         }
         {
           name: 'PORT'
           value: '80'
-        }
-        {
-          name: 'BACKEND_URL'
-          value: 'https://quanto-backend.azurewebsites.net'
         }
       ]
     }
@@ -153,9 +137,6 @@ resource backendApp 'Microsoft.Web/sites@2022-09-01' = {
     }
     httpsOnly: true
   }
-  dependsOn: [
-    acr
-  ]
 }
 
 resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
@@ -185,7 +166,4 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
       ]
     }
   }
-  dependsOn: [
-    acr
-  ]
 }
