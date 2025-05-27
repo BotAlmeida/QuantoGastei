@@ -132,7 +132,7 @@ resource backendApp 'Microsoft.Web/sites@2022-09-01' = {
         }
         {
           name: 'PORT'
-          value: '8181'
+          value: '80'
         }
       ]
     }
