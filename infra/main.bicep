@@ -91,23 +91,20 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     serverFarmId: appServicePlan.id
     httpsOnly: true
     siteConfig: {
-      linuxFxVersion: 'NODE|18-lts' // ou usa PHP|x.x ou até null
       appSettings: [
         {
           name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
           value: 'true'
         }
-        {
-          name: 'PORT'
-          value: '80'
-        }
       ]
+      linuxFxVersion: ''
     }
   }
   identity: {
     type: 'SystemAssigned'
   }
 }
+
 
 resource backendApp 'Microsoft.Web/sites@2022-09-01' = {
   name: backendAppName
