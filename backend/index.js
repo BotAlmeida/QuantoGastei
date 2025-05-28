@@ -1,3 +1,4 @@
+console.log('Iniciando o backend...');
 const express = require('express');
 const multer = require('multer');
 const { CosmosClient } = require('@azure/cosmos');
@@ -99,7 +100,7 @@ app.get('/health', (req, res) => {
   res.status(200).send('Im ok!');
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 80;
 app.listen(PORT, () => console.log(`Backend ON na porta ${PORT} 🚀`))
   .on('error', err => {
     console.error('Erro no servidor:', err);
