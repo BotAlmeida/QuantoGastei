@@ -56,47 +56,183 @@
       text-align: center;
       color: green;
     }
+    nav button {
+      background: #fff;
+      color: #0078d4;
+      border: 2px solid #0078d4;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 10px 0;
+      width: 150px;
+      margin-top: 0;
+      transition: background 0.2s, color 0.2s;
+    }
+    nav button.selected-tab {
+      background: #0078d4;
+      color: #fff;
+      border: 2px solid #0078d4;
+    }
+    nav button:hover:not(.selected-tab) {
+      background: #e6f0fa;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Quanto Gastei</h1>
-    <form id="faturaForm" enctype="multipart/form-data">
-      <label for="data">Data</label>
-      <input type="date" id="data" name="data" required />
+  <nav style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+    <button type="button" class="selected-tab" onclick="showSection(0)">Nova Despesa</button>
+    <button type="button" onclick="showSection(1)">Histórico</button>
+    <button type="button" onclick="showSection(2)">Relatório Semanal</button>
+  </nav>
 
-      <label for="valor">Valor (€)</label>
-      <input type="number" step="0.01" id="valor" name="valor" required />
+  <!-- Form de submissao de despesas -->
+  <section id="sec-0">
+    <div class="container">
+      <h1>Quanto Gastei</h1>
+      <form id="faturaForm" enctype="multipart/form-data">
+        <label for="data">Data</label>
+        <input type="date" id="data" name="data" required />
 
-      <label for="categoria">Categoria</label>
-      <select id="categoria" name="categoria" required>
-        <option value="">Seleciona...</option>
-        <option value="Alimentação">Alimentação</option>
-        <option value="Transportes">Transportes</option>
-        <option value="Lazer">Lazer</option>
-        <option value="Casa">Casa</option>
-        <option value="Outros">Outros</option>
-      </select>
+        <label for="valor">Valor (€)</label>
+        <input type="number" step="0.01" id="valor" name="valor" required />
 
-      <label for="local">Local</label>
-      <input type="text" id="local" name="local" placeholder="Ex: Porto" required />
+        <label for="categoria">Categoria</label>
+        <select id="categoria" name="categoria" required>
+          <option value="">Seleciona...</option>
+          <option value="Alimentação">Alimentação</option>
+          <option value="Transportes">Transportes</option>
+          <option value="Lazer">Lazer</option>
+          <option value="Casa">Casa</option>
+          <option value="Outros">Outros</option>
+        </select>
 
-      <label for="contribuinte">Contribuinte</label>
-      <select id="contribuinte" name="contribuinte" required>
-        <option value="">Seleciona...</option>
-        <option value="true">Sim</option>
-        <option value="false">Não</option>
-      </select>
+        <label for="local">Local</label>
+        <input type="text" id="local" name="local" placeholder="Ex: Porto" required />
 
-      <label for="imagem">Imagem (fatura)</label>
-      <input type="file" id="imagem" name="imagem" accept="image/*" required />
+        <label for="contribuinte">Contribuinte</label>
+        <select id="contribuinte" name="contribuinte" required>
+          <option value="">Seleciona...</option>
+          <option value="true">Sim</option>
+          <option value="false">Não</option>
+        </select>
 
-      <button type="submit">Guardar Despesa</button>
-    </form>
-    <div class="message" id="msg"></div>
-  </div>
+        <label for="imagem">Imagem (fatura)</label>
+        <input type="file" id="imagem" name="imagem" accept="image/*" required />
 
+        <button type="submit">Guardar Despesa</button>
+      </form>
+      <div class="message" id="msg"></div>
+    </div>
+  </section>
+
+  <!-- Historico de Despesas -->
+  <section id="sec-1" style="display:none;">
+    <div>
+      <h1>Historico de Despesas</h1>
+      <ul id="historico-list" style="list-style-type:none; padding:0;"></ul>
+      <div class="message" id="historico-msg"></div>
+    </div>
+  </section>
+
+  <!-- Relatorio Semanal -->
+  <section id="sec-2" style="display:none;">
+    <div>
+      <h1>Relatorio semanal</h1>
+      <div id="relatorio-semanal"></div>
+      <div class="message" id="relatorio-msg"></div>
+    </div>
+  </section>
   <script>
+    // Devolve os dados do histórico de despesas do mês atual
+    async function carregarHistorico() {
+      const historicoList = document.getElementById('historico-list');
+      const historicoMsg = document.getElementById('historico-msg');
+      historicoList.innerHTML = '';
+      historicoMsg.textContent = '';
+
+      // Obtém o mês e ano corrente
+      const now = new Date();
+      const mes = now.getMonth() + 1; // Janeiro = 0
+      const ano = now.getFullYear();
+
+      try {
+        const res = await fetch(`https://quanto-backend.azurewebsites.net/faturas?mes=${mes}&ano=${ano}`);
+        if (!res.ok) throw new Error('Erro ao buscar despesas');
+        const despesas = await res.json();
+
+        if (despesas.length === 0) {
+          historicoMsg.textContent = 'Nenhuma despesa encontrada para este mês.';
+          return;
+        }
+
+        despesas.forEach(despesa => {
+          const li = document.createElement('li');
+          li.style.borderBottom = '1px solid #eee';
+          li.style.padding = '10px 0';
+          li.innerHTML = `
+            <strong>${despesa.categoria}</strong> - €${Number(despesa.valor).toFixed(2)}<br>
+            <small>${despesa.data} | ${despesa.local} | Contribuinte: ${despesa.contribuinte === true || despesa.contribuinte === "true" ? "Sim" : "Não"}</small>
+          `;
+          historicoList.appendChild(li);
+        });
+      } catch (err) {
+        historicoMsg.textContent = 'Erro ao carregar histórico.';
+      }
+    }
+
+    // Devolve o relatório semanal com total gasto por categoria
+    async function carregarRelatorioSemanal() {
+      const relatorioDiv = document.getElementById('relatorio-semanal');
+      const relatorioMsg = document.getElementById('relatorio-msg');
+      relatorioDiv.innerHTML = '';
+      relatorioMsg.textContent = '';
+
+      try {
+        // Substitua a URL abaixo pela URL real da sua Azure Function
+        const res = await fetch('https://quanto-backend.azurewebsites.net/relatorio-semanal');
+        if (!res.ok) throw new Error('Erro ao buscar relatório semanal');
+        const relatorio = await res.json();
+
+        if (!relatorio || relatorio.length === 0) {
+          relatorioMsg.textContent = 'Nenhum dado encontrado para esta semana.';
+          return;
+        }
+
+        // Exemplo de exibição: lista por categoria e total gasto
+        let html = '<ul style="list-style:none; padding:0;">';
+        relatorio.forEach(item => {
+          html += `<li style="border-bottom:1px solid #eee; padding:8px 0;">
+            <strong>${item.categoria}</strong>: €${Number(item.total).toFixed(2)}
+          </li>`;
+        });
+        html += '</ul>';
+        relatorioDiv.innerHTML = html;
+      } catch (err) {
+        relatorioMsg.textContent = 'Erro ao carregar relatório semanal.';
+      }
+    }
+
+    // Mostra a seção correspondente ao botão clicado
+    function showSection(idx) {
+      for (let i = 0; i < 3; i++) {
+        document.getElementById('sec-' + i).style.display = (i === idx) ? '' : 'none';
+      }
+      // Atualiza o botão selecionado
+      const navButtons = document.querySelectorAll('nav button');
+      navButtons.forEach((btn, i) => {
+        if (i === idx) {
+          btn.classList.add('selected-tab');
+        } else {
+          btn.classList.remove('selected-tab');
+        }
+      });
+      // Carrega histórico ao abrir a tab correspondente
+      if (idx === 1) carregarHistorico();
+      // Carrega relatório semanal ao abrir a tab correspondente
+      if (idx === 2) carregarRelatorioSemanal();
+    }
+
+    //Submissão do formulário de despesas
     const form = document.getElementById('faturaForm');
     const msg = document.getElementById('msg');
 

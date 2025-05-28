@@ -71,6 +71,20 @@ resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
   }
 }
 
+resource cosmosDbRelatorioContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-03-15' = {
+  name: 'relatorio_semanal'
+  parent: cosmosDbDatabase
+  properties: {
+    resource: {
+      id: 'relatorio_semanal'
+      partitionKey: {
+        paths: ['/id']
+        kind: 'Hash'
+      }
+    }
+  }
+}
+
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: appServicePlanName
   location: location
@@ -97,7 +111,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
           value: 'true'
         }
       ]
-      linuxFxVersion: ''
+      linuxFxVersion: 'STATIC'
     }
   }
   identity: {

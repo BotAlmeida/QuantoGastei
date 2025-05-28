@@ -5,39 +5,49 @@ on:
     branches:
       - master
 
+env:
+  AZURE_WEBAPP_NAME: quanto-frontend
+  AZURE_BACKEND_NAME: quanto-backend
+  AZURE_FUNCTION_NAME: quanto-func
+  AZURE_RG: rg-despesas
+  ACR_NAME: acrdespesas
+
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Login Azure CLI
+    - name: Azure Login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Login no ACR
-      uses: azure/docker-login@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Azure CLI - ACR Login
+      run: az acr login --name ${{ env.ACR_NAME }}
+
+    - name: Build and push backend image
+      uses: docker/build-push-action@v5
       with:
-        login-server: ${{ secrets.ACR_NAME }}.azurecr.io
-        username: ${{ secrets.ACR_USERNAME }}
-        password: ${{ secrets.ACR_PASSWORD }}
+        context: ./backend
+        push: true
+        tags: ${{ env.ACR_NAME }}.azurecr.io/backend:latest
 
-    - name: Build e push backend
-      run: |
-        docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/backend:latest ./backend
-        docker push ${{ secrets.ACR_NAME }}.azurecr.io/backend:latest
-
-    - name: Build e push function
-      run: |
-        docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/function:latest ./function
-        docker push ${{ secrets.ACR_NAME }}.azurecr.io/function:latest
+    - name: Build and push function image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./function
+        push: true
+        tags: ${{ env.ACR_NAME }}.azurecr.io/function:latest
 
     - name: Deploy infraestrutura Bicep
       uses: azure/arm-deploy@v1
       with:
-        resourceGroupName: rg-despesas
+        resourceGroupName: ${{ env.AZURE_RG }}
         template: infra/main.bicep
         parameters: location=northeurope
         failOnStdErr: false
@@ -49,9 +59,10 @@ jobs:
 
     - name: Deploy frontend zip
       run: |
-        az webapp deploy --resource-group rg-despesas --name quanto-frontend --src-path ./frontend.zip --type zip
+        az webapp deploy --resource-group ${{ env.AZURE_RG }} --name ${{ env.AZURE_WEBAPP_NAME }} --src-path ./frontend.zip --type zip
 
-    - name: Reiniciar Web App e Function
+    - name: Restart backend and function apps
       run: |
-        az webapp restart --name quanto-frontend --resource-group rg-despesas
-        az functionapp restart --name quanto-func --resource-group rg-despesas
+        az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RG }}
+        az webapp restart --name ${{ env.AZURE_BACKEND_NAME }} --resource-group ${{ env.AZURE_RG }}
+        az webapp restart --name ${{ env.AZURE_FUNCTION_NAME }} --resource-group ${{ env.AZURE_RG }}
