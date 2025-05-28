@@ -15,7 +15,11 @@ const relatorioContainer = client.database('despesasdb').container('relatorio_se
 const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.BLOB_CONN_STRING);
 const blobContainer = blobServiceClient.getContainerClient('faturas-imagens');
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+}));
 
 // Endpoint para guardar despesas
 app.post('/fatura', upload.single('imagem'), async (req, res) => {
@@ -87,7 +91,9 @@ app.get('/relatorio-semanal', async (req, res) => {
   }
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).send('Im ok!');
+});
 
-
-const PORT = 80;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Backend a bombar na porta ${PORT} 🚀`));
