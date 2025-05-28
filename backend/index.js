@@ -3,7 +3,11 @@ const multer = require('multer');
 const { CosmosClient } = require('@azure/cosmos');
 const { BlobServiceClient } = require('@azure/storage-blob');
 const cors = require('cors');
-require('dotenv').config();
+
+console.log('Variáveis de ambiente:');
+console.log('PORT:', process.env.PORT);
+console.log('COSMOS_CONN_STRING:', process.env.COSMOS_CONN_STRING ? 'OK' : 'MISSING');
+console.log('BLOB_CONN_STRING:', process.env.BLOB_CONN_STRING ? 'OK' : 'MISSING');
 
 const app = express();
 const upload = multer();
@@ -96,4 +100,8 @@ app.get('/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Backend a bombar na porta ${PORT} 🚀`));
+app.listen(PORT, () => console.log(`Backend ON na porta ${PORT} 🚀`))
+  .on('error', err => {
+    console.error('Erro no servidor:', err);
+    process.exit(1);
+  });
