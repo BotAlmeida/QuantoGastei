@@ -7,8 +7,8 @@ const cors = require('cors');
 
 console.log('Variáveis de ambiente:');
 console.log('PORT:', process.env.PORT);
-console.log('COSMOS_CONN_STRING:', process.env.COSMOS_CONN_STRING ? 'OK' : 'MISSING');
-console.log('BLOB_CONN_STRING:', process.env.BLOB_CONN_STRING ? 'OK' : 'MISSING');
+console.log('COSMOS_CONN_STRING:', process.env.COSMOS_CONN_STRING ?? 'MISSING');
+console.log('BLOB_CONN_STRING:', process.env.BLOB_CONN_STRING ?? 'MISSING');
 
 const app = express();
 const upload = multer();
