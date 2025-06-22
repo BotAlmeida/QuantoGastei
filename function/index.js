@@ -2,6 +2,7 @@ const { CosmosClient } = require('@azure/cosmos');
 const conn = process.env.COSMOS_CONN_STRING;
 const client = new CosmosClient(conn);
 const container = client.database('despesasdb').container('faturas');
+const relatorioContainer = client.database('despesasdb').container('relatorio_semanal');
 
 module.exports = async function (context, myTimer) {
   const now = new Date().toISOString();
@@ -14,5 +15,8 @@ module.exports = async function (context, myTimer) {
     resumo[cat] = (resumo[cat] || 0) + fatura.valor;
   });
 
-  context.log("Resumo semanal:", resumo);
+  await relatorioContainer.items.create({
+    data: now,
+    categorias: resumo
+  });
 };
