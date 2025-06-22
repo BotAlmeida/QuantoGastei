@@ -28,7 +28,7 @@ projeto-despesas/
 ├── frontend/
 │ └── assets/
 │ └── index.html
-├── functions/
+├── function/
 │ └── Dockerfile
 │ └── function.json
 │ └── host.json

@@ -40,7 +40,7 @@ jobs:
     - name: Build and push function image
       uses: docker/build-push-action@v5
       with:
-        context: ./functions
+        context: ./function
         push: true
         tags: ${{ env.ACR_NAME }}.azurecr.io/function:latest
 
