@@ -1,0 +1,8 @@
+{
+  "name": "quanto-func",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "whatever-lib-precises": "^1.0.0"
+  }
+}
