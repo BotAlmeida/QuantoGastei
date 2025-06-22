@@ -37,12 +37,17 @@ jobs:
         push: true
         tags: ${{ env.ACR_NAME }}.azurecr.io/backend:latest
 
-    - name: Build and push function image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./function
-        push: true
-        tags: ${{ env.ACR_NAME }}.azurecr.io/function:latest
+    - name: Criar zip da function
+      run: |
+        cd function
+        zip -r ../function.zip .
+
+    - name: Deploy function zip
+      run: |
+        az functionapp deployment source config-zip \
+          --resource-group ${{ env.AZURE_RG }} \
+          --name ${{ env.AZURE_FUNCTION_NAME }} \
+          --src function.zip
 
     - name: Deploy infraestrutura Bicep
       uses: azure/arm-deploy@v1
