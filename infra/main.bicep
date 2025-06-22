@@ -138,7 +138,7 @@ resource backendApp 'Microsoft.Web/sites@2022-09-01' = {
         }
         {
           name: 'BLOB_CONN_STRING'
-          value: storage.listKeys().keys[0].value
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storage.name};AccountKey=${storage.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
         }
         {
           name: 'COSMOS_CONN_STRING'
