@@ -24,7 +24,12 @@
       color: #0078d4;
       margin-bottom: 20px;
     }
+    .title_container {
+      display: flex;
+      justify-content: center;
+    }
     .title_note {
+      align-content: center;
       font-size: 14px;
       color: #555;
       margin-bottom: 20px;
@@ -141,8 +146,10 @@
   <!-- Historico de Despesas -->
   <section id="sec-1" style="display:none;">
     <div>
-      <span class="title">Historico de Despesas</span>
-      <span class="title_note">(mes corrente)</span>
+      <div class="title_container">
+        <span class="title">Historico de Despesas</span>
+        <span class="title_note">(mes corrente)</span>
+      </div>
       <ul id="historico-list" style="list-style-type:none; padding:0;"></ul>
       <div class="message" id="historico-msg"></div>
     </div>
