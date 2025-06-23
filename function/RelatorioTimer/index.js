@@ -21,8 +21,14 @@ module.exports = async function (context, myTimer) {
   };
   const { resources } = await container.items.query(querySpec).fetchAll();
 
+  // Filtro extra em JS para garantir apenas os últimos 7 dias
+  const recursosFiltrados = resources.filter(fatura => {
+    const dataFatura = new Date(fatura.data);
+    return dataFatura >= seteDiasAtras && dataFatura <= now;
+  });
+
   const resumo = {};
-  resources.forEach(fatura => {
+  recursosFiltrados.forEach(fatura => {
     const cat = fatura.categoria;
     resumo[cat] = (resumo[cat] || 0) + fatura.valor;
   });
