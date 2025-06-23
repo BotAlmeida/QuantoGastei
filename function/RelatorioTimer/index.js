@@ -5,10 +5,22 @@ const container = client.database('despesasdb').container('faturas');
 const relatorioContainer = client.database('despesasdb').container('relatorio_semanal');
 
 module.exports = async function (context, myTimer) {
-  const now = new Date().toISOString();
-  context.log(`Relatório semanal gerado a ${now}`);
+  const now = new Date();
+  context.log(`Relatório semanal gerado a ${now.toISOString()}`);
 
-  const { resources } = await container.items.readAll().fetchAll();
+  // Calcula a data limite (7 dias atrás)
+  const seteDiasAtras = new Date(now);
+  seteDiasAtras.setDate(now.getDate() - 7);
+
+  // Busca apenas faturas dos últimos 7 dias
+  const querySpec = {
+    query: "SELECT * FROM c WHERE c.data >= @dataLimite",
+    parameters: [
+      { name: "@dataLimite", value: seteDiasAtras.toISOString() }
+    ]
+  };
+  const { resources } = await container.items.query(querySpec).fetchAll();
+
   const resumo = {};
   resources.forEach(fatura => {
     const cat = fatura.categoria;
@@ -16,7 +28,7 @@ module.exports = async function (context, myTimer) {
   });
 
   await relatorioContainer.items.create({
-    data: now,
+    data: now.toISOString(),
     categorias: resumo
   });
 };

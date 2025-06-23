@@ -213,7 +213,7 @@
         const res = await fetch('https://quanto-backend.azurewebsites.net/relatorio-semanal');
         if (!res.ok) throw new Error('Erro ao buscar relatório semanal');
         const relatorio = await res.json();
-
+        console.log(relatorio);
         if (!relatorio || relatorio.length === 0) {
           relatorioMsg.textContent = 'Nenhum dado encontrado para esta semana.';
           return;

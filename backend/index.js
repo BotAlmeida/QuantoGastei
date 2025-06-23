@@ -89,7 +89,8 @@ app.get('/relatorio-semanal', async (req, res) => {
     const query = 'SELECT * FROM c ORDER BY c.data DESC OFFSET 0 LIMIT 1';
     const { resources } = await relatorioContainer.items.query(query).fetchAll();
     if (resources.length === 0) return res.json([]);
-    res.json(resources[0].categorias || []);
+    const response = res.json(resources[0].categorias || []);
+    res.send(response);
   } catch (err) {
     console.error(err);
     res.status(500).send('Erro ao buscar relatório semanal');
