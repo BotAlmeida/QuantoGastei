@@ -213,7 +213,6 @@
         const res = await fetch('https://quanto-backend.azurewebsites.net/relatorio-semanal');
         if (!res.ok) throw new Error('Erro ao buscar relatório semanal');
         const relatorio = await res.json();
-        console.log(relatorio);
         if (!relatorio || relatorio.length === 0) {
           relatorioMsg.textContent = 'Nenhum dado encontrado para esta semana.';
           return;
@@ -221,7 +220,7 @@
 
         // Exemplo de exibição: lista por categoria e total gasto
         let html = '<ul style="list-style:none; padding:0;">';
-        for (const [categoria, total] of Object.entries(relatorio.categorias || {})) {
+        for (const [categoria, total] of Object.entries(relatorio || {})) {
           html += `<li style="border-bottom:1px solid #eee; padding:8px 0;">
             <strong>${categoria}</strong>: €${Number(total).toFixed(2)}
           </li>`;
