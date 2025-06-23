@@ -37,9 +37,9 @@ jobs:
         push: true
         tags: ${{ env.ACR_NAME }}.azurecr.io/backend:latest
 
-    - name: Instalar dependências
+    - name: Instalar dependências function
       run: |
-        cd function
+        cd function/RelatorioTimer
         npm install
 
     - name: Criar zip da function
