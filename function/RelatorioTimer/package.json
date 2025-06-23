@@ -2,7 +2,11 @@
   "name": "quanto-func",
   "version": "1.0.0",
   "main": "index.js",
+  "scripts": {
+    "start": "func start"
+  },
   "dependencies": {
-    "whatever-lib-precises": "^1.0.0"
+    "@azure/cosmos": "^3.19.0",    
+    "some-real-lib": "^1.2.3"
   }
 }
