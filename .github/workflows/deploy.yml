@@ -37,6 +37,11 @@ jobs:
         push: true
         tags: ${{ env.ACR_NAME }}.azurecr.io/backend:latest
 
+    - name: Instalar dependências
+      run: |
+        cd function
+        npm install
+
     - name: Criar zip da function
       run: |
         cd function
